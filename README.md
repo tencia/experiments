@@ -3,6 +3,9 @@ Autoencoder that contains no dense layers. The encoding layer is calculated by g
 
 The resulting autoencoder is somewhat scale-invariant and can effectively encode images larger or smaller than the training set. The current architecture depends on Lasagne's InverseLayer, which allows the decoding layer access to the gradients in the encoding layer. The next step is to remove this dependency, which will make training more difficult.
 
+Example output - leftmost column is original image, second is original-size reconstruction, and each column to the right is reconstruction after upscaling the original image by 20% along each dimension.
+![image](fcae/increasing_size_autoencoded.jpg)
+
 ### DCGAN autoencoder
 Inspired by Radford et al 2015 ( http://arxiv.org/abs/1511.06434 ). An attempt to train an autoencoder using generative adverserial training with the autoencoder acting as the generator network, and a separate discriminator network.
 
