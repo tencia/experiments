@@ -7,12 +7,12 @@ Example output - leftmost column is original image, second is original-size reco
 ![image](fcae/increasing_size_autoencoded.jpg)
 
 ### DCGAN autoencoder
-Inspired by Radford et al 2015 ( http://arxiv.org/abs/1511.06434 ). An attempt to train an autoencoder using generative adverserial training with the autoencoder acting as the generator network, and a separate discriminator network.
+Inspired by Radford et al 2015 ( http://arxiv.org/abs/1511.06434 ). An attempt to train an autoencoder using generative adverserial training with the autoencoder acting as the generator network, and a separate discriminator network. The architecture used is significantly different from DCGAN, in particular in the use of max-pooling layers rather than strided convolutions.
 
 Based on code found here:
 https://github.com/Newmu/dcgan_code
 
-This approach trains poorly; the generator seems to find the degenerate solution of outputting a single solution designed to exploit the discriminator. The architecture used is significantly different from DCGAN, in particular in the use of max-pooling layers rather than strided convolutions.
+This approach trains poorly; the generator seems to find the degenerate solution of outputting a single solution designed to exploit the discriminator. The hope was that it would reproduce the input image, but as structured there is actually nothing in the objective that encourages it to do this. Adding in a smaller term to this effect (e.g. epsilon * binary cross-entropy) helped a little but not much.
 
 ### Rotated convolutions
 Compares performance obtained on the CIFAR-10 classification task using
