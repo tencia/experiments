@@ -27,4 +27,4 @@ The architectures used in this experiment were chosen to have relatively few den
 - lasagne
 - tqdm
 - fuel
-- hd5py
+- h5py
