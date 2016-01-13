@@ -9,7 +9,7 @@ Inspired by Radford et al 2015 ( http://arxiv.org/abs/1511.06434 ). An attempt t
 Based on code found here:
 https://github.com/Newmu/dcgan_code
 
-This approach trains poorly; the generator seems to find the degenerate solution of outputting a single solution designed to exploit the discriminator.
+This approach trains poorly; the generator seems to find the degenerate solution of outputting a single solution designed to exploit the discriminator. The architecture used is significantly different from DCGAN, in particular in the use of max-pooling layers rather than strided convolutions.
 
 ### Rotated convolutions
 Compares performance obtained on the CIFAR-10 classification task using
@@ -18,3 +18,10 @@ Compares performance obtained on the CIFAR-10 classification task using
 - a CNN with a quarter as many filters per layer, but each filter outputs both its own activations, and those of its weights if rotated 90, 180, and 270 degrees
 
 The architectures used in this experiment were chosen to have relatively few dense layer weights, using a final convolutional layer containing fewer feature maps. The result so far is that reducing the model size by using rotated convolutional featues achieves classification accuracy nearly as good as using a model 2-4x the size, and with further work and/or on certain architectures perhaps performance can be matched or exceeded.
+
+### Dependencies
+- theano
+- lasagne
+- tqdm
+- fuel
+- hd5py
