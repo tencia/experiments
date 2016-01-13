@@ -16,4 +16,5 @@ Compares performance obtained on the CIFAR-10 classification task using
 - a typical CNN
 - a CNN with half as many filters per layer, but each outputs its own activations and those of its weights if rotated 180 degrees
 - a CNN with a quarter as many filters per layer, but each filter outputs both its own activations, and those of its weights if rotated 90, 180, and 270 degrees
+
 The architectures used in this experiment were chosen to have relatively few dense layer weights, using a final convolutional layer containing fewer feature maps. The result so far is that reducing the model size by using rotated convolutional featues achieves classification accuracy nearly as good as using a model 2-4x the size, and with further work and/or on certain architectures perhaps performance can be matched or exceeded.
