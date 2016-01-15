@@ -7,7 +7,7 @@ Example output - leftmost column is original image, second is original-size reco
 ![image](fcae/increasing_size_autoencoded.jpg)
 
 ### DCGAN autoencoder
-Inspired by Radford et al 2015 ( http://arxiv.org/abs/1511.06434 ). An attempt to train an autoencoder using generative adverserial training with the autoencoder acting as the generator network, and a separate discriminator network. The architecture used is significantly different from DCGAN, in particular in the use of max-pooling layers rather than strided convolutions.
+Inspired by [1] [Radford et al 2015](http://arxiv.org/abs/1511.06434). An attempt to train an autoencoder using generative adverserial training with the autoencoder acting as the generator network, and a separate discriminator network. The architecture used is significantly different from DCGAN, in particular in the use of max-pooling layers rather than strided convolutions.
 
 Based on code found here:
 https://github.com/Newmu/dcgan_code
