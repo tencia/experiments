@@ -20,11 +20,15 @@ def train_with_hdf5(data, num_epochs, train_fn, test_fn,
         tr_transform = lambda x:x,
         te_transform = lambda x:x,
         verbose=True, train_shuffle=True,
+        save_best_params_to=None,
+        last_layer=None,
         max_per_epoch=-1):
     tr_stream = data.streamer(training=True, shuffled=train_shuffle)
     te_stream = data.streamer(training=False, shuffled=False)
     from tqdm import tqdm
     ret = []
+    mve_params = None
+    mve = None
     for epoch in range(num_epochs):
         start = time.time()
         tr_err, tr_batches = 0,0
@@ -51,10 +55,16 @@ def train_with_hdf5(data, num_epochs, train_fn, test_fn,
                 break
         val_err /= val_batches
         tr_err /= tr_batches
+        if save_best_params_to is not None:
+            if mve is None or val_err < mve:
+                mve = val_err
+                mve_params = nn.layers.get_all_param_values(last_layer)
         if verbose:
             print('ep {}/{} - tl {:.5f} - vl {:.5f} - t {:.3f}s'.format(
                 epoch, num_epochs, tr_err, val_err, time.time()-start))
         ret.append((tr_err, val_err))
+    if save_best_params_to is not None:
+        save_params(mve_params, save_best_params_to)
     return ret
 
 # goes from raw image array (usually uint8) to floatX, square=True crops to
@@ -80,11 +90,14 @@ def raw_to_floatX(imb, pixel_shift=0.5, square=True, center=False, rng=None):
     return nn.utils.floatX(imb)[:,:,x:x+w,y:y+h]/ 255. - pixel_shift
 
 # creates and hdf5 file from a dataset given a split in the form {'train':(0,n)}, etc
-def save_hd5py(dataset, destfile, indices_dict):
+# appears to save in unpredictable order, so order must be verified after creation
+def save_hd5py(dataset_dict, destfile, indices_dict):
     f = h5py.File(destfile, mode='w')
-    images = f.create_dataset('images', dataset.shape, dtype='uint8')
-    images[...] = dataset
-    split_dict = dict((k, {'images':v}) for k,v in indices_dict.iteritems())
+    for name, dataset in dataset_dict.iteritems():
+        dat = f.create_dataset(name, dataset.shape, dtype=str(dataset.dtype))
+        dat[...] = dataset
+    split_dict = dict((k, dict((name, v) for name in dataset_dict.iterkeys()))
+            for k,v in indices_dict.iteritems())
     f.attrs['split'] = H5PYDataset.create_split_array(split_dict)
     f.flush()
     f.close()
@@ -131,12 +144,19 @@ def get_image_pair(X, Xpr,index=-1,shift=0.5):
     new_im.paste(rec_image, (0,original_image.size[1]))
     return new_im
 
+# gets array (in format used for storage) from an Image
+def arr_from_img_storage(im):
+    w,h=im.size
+    arr=np.asarray(im.getdata(), dtype=np.uint8)
+    c = np.product(arr.size) / (w*h)
+    return arr.reshape(h,w,c).transpose(2,1,0)
+
 # gets array (in format used for testing) from an Image
 def arr_from_img(im,shift=0.5):
     w,h=im.size
-    arr=im.getdata()
+    arr=np.asarray(im.getdata(), dtype=theano.config.floatX)
     c = np.product(arr.size) / (w*h)
-    return np.asarray(arr, dtype=np.float32).reshape((h,w,c)).transpose(2,1,0) / 255. - shift
+    return arr.reshape((h,w,c)).transpose(2,1,0) / 255. - shift
 
 # loads params in npz (if filename is a .npz) or pickle if not
 def load_params(model, fn):
@@ -152,11 +172,15 @@ def load_params(model, fn):
 # saves params in npz (if filename is a .npz) or pickle if not
 def save_params(model, fn):
     if 'npz' in fn:
-        np.savez(fn, *nn.layers.get_all_param_values(model))
+        if isinstance(model, list):
+            param_vals = model
+        else:
+            param_vals = nn.layers.get_all_param_values(model)
+        np.savez(fn, *param_vals)
     else:
         with open(fn, 'w') as wr:
             import pickle
-            pickle.dump(nn.layers.get_all_param_values(model), wr)
+            pickle.dump(param_vals, wr)
 
 # reset shared variable values of accumulators to recover from NaN
 def reset_accs(updates, params):

@@ -19,7 +19,7 @@ data = u.DataH5PyStreamer(os.path.join(c.external_data, 'cifar10.hdf5'), batch_s
 def transform_data(imb):
     # data augmentation: flip = -1 if we do flip over y-axis, 1 if not
     flip = -2*np.random.binomial(1, p=0.5) + 1
-    return u.raw_to_floatX(imb[0], pixel_shift=0)[:,:,:,::flip], imb[1].flatten()
+    return u.raw_to_floatX(imb[0], pixel_shift=0)[:,:,::flip], imb[1].flatten()
 
 def rectify(X):
     return T.maximum(X, 0.)
